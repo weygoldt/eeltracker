@@ -2,9 +2,14 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPRegressor
 from sklearn.preprocessing import StandardScaler
+import seaborn as sns
 
 from xgboost import XGBRegressor
 import matplotlib.pyplot as plt
+
+neels = 30
+colors = sns.color_palette("tab10", neels)
+print(len(colors))
 
 
 def main():
@@ -16,6 +21,15 @@ def main():
     xs = data["x"]  # Shape: (n_samples, 5)
     ys = data["y"]  # Shape: (n_samples, 5)
     zs = data["z"]  # Shape: (n_samples, 5)
+
+    # Plot random subset of data
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection="3d")
+    for i in range(neels):
+        rand_idx = np.random.randint(0, xs.shape[0])
+        ax.scatter(xs[rand_idx], ys[rand_idx], zs[rand_idx], alpha=0.6)
+        ax.plot(xs[rand_idx], ys[rand_idx], zs[rand_idx], alpha=0.6)
+    plt.show()
 
     # Take only the first point
     # xs = xs[:, 0]  # Shape: (n_samples,)
@@ -50,14 +64,13 @@ def main():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    """
     # Define the MLP regressor
     mlp = MLPRegressor(
         hidden_layer_sizes=(256, 528, 256, 128, 64, 32),
         activation="relu",
         solver="adam",
         max_iter=8000,
-        random_state=3,
+        random_state=8,
         learning_rate_init=0.001,
         learning_rate="adaptive",
     )
@@ -73,22 +86,28 @@ def main():
     y_pred = mlp.predict(X_test)
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
-    for target, pred in zip(y_test[:15], y_pred[:15]):
+
+    # as many colors as neels
+    for i, (target, pred) in enumerate(zip(y_test[:neels], y_pred[:neels])):
         target_nodes = target.reshape(5, 3)
         pred_nodes = pred.reshape(5, 3)
         # target_nodes = target.reshape(1, 3)
         # pred_nodes = pred.reshape(1, 3)
-        ax.scatter(*target_nodes.T, color="blue", label="True", alpha=0.6)
-        ax.scatter(*pred_nodes.T, color="red", label="Predicted", alpha=0.6)
+        ax.scatter(*target_nodes.T, color=colors[i], label="True", alpha=0.3)
+        ax.scatter(*pred_nodes.T, color=colors[i], label="Predicted", alpha=0.8)
         ax.plot(
             target_nodes[:, 0],
             target_nodes[:, 1],
             target_nodes[:, 2],
-            color="blue",
-            alpha=0.6,
+            color=colors[i],
+            alpha=0.3,
         )
         ax.plot(
-            pred_nodes[:, 0], pred_nodes[:, 1], pred_nodes[:, 2], color="red", alpha=0.6
+            pred_nodes[:, 0],
+            pred_nodes[:, 1],
+            pred_nodes[:, 2],
+            color=colors[i],
+            alpha=0.8,
         )
         # make connecting lines
         # x = np.array([target_nodes[0][0], pred_nodes[0][0]])
@@ -97,8 +116,15 @@ def main():
         # ax.plot(x, y, z, color="k", alpha=0.6)
     plt.legend()
     plt.show()
-    """
 
+    # Plot error as function of distance from 0
+    distances = np.linalg.norm(y_test, axis=1)
+    errors = np.linalg.norm(y_test - y_pred, axis=1)
+    plt.scatter(distances, errors, alpha=0.6)
+    plt.xlabel("Distance from origin")
+    plt.ylabel("Error")
+    plt.show()
+    """
     # Define the XGBoost regressor for each coordinate output
     models = [
         XGBRegressor(
@@ -138,6 +164,7 @@ def main():
         )
     plt.legend()
     plt.show()
+    """
 
 
 if __name__ == "__main__":

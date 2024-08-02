@@ -6,7 +6,7 @@ from thunderfish.efield import squareroot_transform
 from tetratools import estimate_direction_vector, plot_tetra_with_vector
 from rich.progress import track
 
-space_bounds = (400, 400, 100)
+space_bounds = (800, 800, 800)
 meta_tetra_edgelen = 100
 sub_tetra_edgelen = 25
 
