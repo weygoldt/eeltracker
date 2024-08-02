@@ -1,4 +1,5 @@
 # Data directories
+*.npy
 plots/*
 data/*
 models/*
