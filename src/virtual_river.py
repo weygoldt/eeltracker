@@ -4,10 +4,30 @@ from tetratools import make_tetra_corner_coordinates, move_tetra_to_coordinate
 from efield import make_eel, make_monopoles, epotential
 from thunderfish.efield import squareroot_transform
 from tetratools import estimate_direction_vector, plot_tetra_with_vector
+from rich.progress import track
 
 space_bounds = (400, 400, 100)
 meta_tetra_edgelen = 100
 sub_tetra_edgelen = 25
+
+
+def resample_line(x, y, z, num_samples):
+    # Ensure the first and last points are kept
+    num_samples = max(2, num_samples)  # Ensure at least two samples
+
+    # Calculate the distance between consecutive points
+    distances = np.sqrt(np.diff(x) ** 2 + np.diff(y) ** 2 + np.diff(z) ** 2)
+    cumulative_distances = np.insert(np.cumsum(distances), 0, 0)
+
+    # Determine the new sample positions
+    new_positions = np.linspace(0, cumulative_distances[-1], num_samples)
+
+    # Interpolate the new x, y, z coordinates
+    new_x = np.interp(new_positions, cumulative_distances, x)
+    new_y = np.interp(new_positions, cumulative_distances, y)
+    new_z = np.interp(new_positions, cumulative_distances, z)
+
+    return new_x, new_y, new_z
 
 
 def virtual_river(space_dims):
@@ -32,7 +52,7 @@ def virtual_river(space_dims):
     sub_tetras = np.array(sub_tetras)
 
     ## Eel
-    size = 200
+    size = np.random.uniform(80, 240)
     x, y, z = make_eel(size, 1000)
     # Randomly move eel
     x = x + np.random.uniform(-space_dims[0] / 2, space_dims[0] / 2)
@@ -68,14 +88,14 @@ def virtual_river(space_dims):
 
     pots = np.array(pots)
     amps = np.abs(pots)
-    print(amps)
 
-    mz = 0.65
-    sqpot = [squareroot_transform(pot / 200, mz) for pot in pots]
+    # mz = 0.65
+    # sqpot = [squareroot_transform(pot / 200, mz) for pot in pots]
 
     # Compute direction vectors
-    signs = np.sign(sqpot)
+    signs = np.sign(pots)
 
+    """
     direction_vectors = [
         estimate_direction_vector(ct, sa, sgns)
         for ct, sa, sgns in zip(sub_tetras, amps, signs)
@@ -107,18 +127,44 @@ def virtual_river(space_dims):
     ax.plot([-space_dims[0], space_dims[0]], [0, 0], [0, 0], color="black", lw=0.5)
     ax.plot([0, 0], [0, 0], [-space_dims[2], space_dims[2]], color="black", lw=0.5)
 
-    # ax.set_xlim(-space_dims[0], space_dims[0])
-    # ax.set_ylim(-space_dims[1], space_dims[1])
-    # ax.set_zlim(-space_dims[2], space_dims[2])
+    ax.set_xlim(-space_dims[0], space_dims[0])
+    ax.set_ylim(-space_dims[1], space_dims[1])
+    ax.set_zlim(-space_dims[2], space_dims[2])
     # Top down view
     ax.view_init(elev=90, azim=0)
     ax.set_aspect("equal")
     plt.show()
-    return x, y, z, amps, signs, sub_tetras
+    """
+    return x, y, z, size, amps, signs, sub_tetras
 
 
 def main():
-    x, y, z = virtual_river(space_bounds)
+    data = dict(
+        x=[],
+        y=[],
+        z=[],
+        size=[],
+        amps=[],
+        signs=[],
+        sub_tetras=[],
+    )
+    for i in track(range(10000), description="Generating virtual rivers"):
+        x, y, z, size, amps, signs, sub_tetras = virtual_river(space_bounds)
+        x, y, z = resample_line(x, y, z, 5)
+        data["x"].append(x)
+        data["y"].append(y)
+        data["z"].append(z)
+        data["size"].append(size)
+        data["amps"].append(amps)
+        data["signs"].append(signs)
+        data["sub_tetras"].append(sub_tetras)
+
+    # Turn into np arrays
+    for key in data.keys():
+        data[key] = np.array(data[key])
+
+    # Save data
+    np.savez("simulations.npz", **data)
 
 
 if __name__ == "__main__":
