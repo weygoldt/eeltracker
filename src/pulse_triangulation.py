@@ -102,6 +102,9 @@ def collect_pulses(files):
                 positioned_corner_tetras[i] = positioned_corner_tetras[i][indexer]
             positioned_corner_tetras = np.array(positioned_corner_tetras)
 
+            print(positioned_corner_tetras)
+            print(np.shape(positioned_corner_tetras))
+            exit()
             direction_vectors = [
                 estimate_direction_vector(ct, sa, sgns)
                 for ct, sa, sgns in zip(
