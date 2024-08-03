@@ -39,6 +39,13 @@ def main():
     # Features
     amps = data["amps"]  # Shape: (n_samples, 16)
     amps = amps.reshape(amps.shape[0], -1)  # Shape: (n_samples, 16)
+
+    # norm amps to max for each sample
+    amps = amps / np.max(amps, axis=1)[:, None]
+
+    # invert amps to relate to distance from 0
+    # amps = 1 / np.sqrt(amps)
+
     signs = data["signs"]  # Shape: (n_samples, 16)
     signs = signs.reshape(signs.shape[0], -1)  # Shape: (n_samples, 16)
 
