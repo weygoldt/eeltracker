@@ -5,15 +5,11 @@ from audioio import load_audio
 from scipy.signal import find_peaks, savgol_filter
 from scipy.signal.windows import tukey
 import numpy as np
-from sklearn.decomposition import PCA
-from sklearn.cluster import HDBSCAN, KMeans
-from sklearn.mixture import GaussianMixture
+from sklearn.cluster import HDBSCAN
 from sklearn.preprocessing import StandardScaler
-from scipy.interpolate import interp1d
-from style import cm, set_light_style
+from style import set_light_style
 from pathlib import Path
 from rich.progress import track
-from bisect import bisect_left
 from umap import UMAP
 
 set_light_style()

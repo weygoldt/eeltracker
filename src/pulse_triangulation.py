@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from audioio import load_audio
 from scipy.signal import find_peaks, savgol_filter
 import numpy as np
-from style import cm, set_light_style
+from style import set_light_style
 from pathlib import Path
 from rich.progress import track
 import seaborn as sns

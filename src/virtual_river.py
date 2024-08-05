@@ -1,9 +1,6 @@
 import numpy as np
-import matplotlib.pyplot as plt
 from tetratools import make_tetra_corner_coordinates, move_tetra_to_coordinate
 from efield import make_eel, make_monopoles, epotential
-from thunderfish.efield import squareroot_transform
-from tetratools import estimate_direction_vector, plot_tetra_with_vector
 from rich.progress import track
 
 space_bounds = (800, 800, 800)

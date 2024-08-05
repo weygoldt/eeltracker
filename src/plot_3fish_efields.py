@@ -1,16 +1,12 @@
 import numpy as np
-import scipy.signal as sig
 import matplotlib.pyplot as plt
-from matplotlib.mlab import psd
 
-from thunderfish.fakefish import wavefish_eods
 from thunderfish.efield import (
     efish_monopoles,
     epotential_meshgrid,
     squareroot_transform,
 )
 from thunderfish.fishshapes import plot_fish
-from thunderlab.powerspectrum import psd, decibel
 import seaborn as sns
 
 
