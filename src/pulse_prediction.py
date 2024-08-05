@@ -21,6 +21,7 @@ def main():
     for file in files:
         print(file)
         data = np.load(file)
+        print(data.files)
 
         snippets = data["all_snippets"]
         if len(snippets) == 0:
